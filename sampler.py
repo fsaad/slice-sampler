@@ -42,8 +42,9 @@ def slice_sample(x_start, logpdf_target, D, num_samples=1, burn=1, lag=1,
     while len(M['samples']) < num_samples:
         num_iters += 1
         u = np.log(rng.rand()) + logpdf_target(x)
+        r = rng.rand()
         a, b, r, a_out, b_out = _find_slice_interval(
-            logpdf_target, x, u, D, w=w, rng=rng)
+            logpdf_target, x, u, D, r, w=w)
 
         x_proposal = []
 
@@ -69,11 +70,8 @@ def slice_sample(x_start, logpdf_target, D, num_samples=1, burn=1, lag=1,
 
     return M['samples'], M
 
-def _find_slice_interval(f, x, u, D, w=1.0, rng=None):
+def _find_slice_interval(f, x, u, D, r, w=1.0):
     """Return approximated interval under f at height u."""
-    if rng is None:
-        rng = np.random.RandomState(0)
-    r = rng.rand()
     a = x - r*w
     b = x + (1-r)*w
     a_out = [a]
